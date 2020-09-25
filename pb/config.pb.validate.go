@@ -36,6 +36,270 @@ var (
 // define the regex for a UUID once up-front
 var _config_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
+// Validate checks the field values on Config with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Config) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if v, ok := interface{}(m.GetListener()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ConfigValidationError{
+				field:  "Listener",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if v, ok := interface{}(m.GetLogger()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return ConfigValidationError{
+				field:  "Logger",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	for idx, item := range m.GetRoutes() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ConfigValidationError{
+					field:  fmt.Sprintf("Routes[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ConfigValidationError is the validation error returned by Config.Validate if
+// the designated constraints aren't met.
+type ConfigValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ConfigValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ConfigValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ConfigValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ConfigValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ConfigValidationError) ErrorName() string { return "ConfigValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ConfigValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfig.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ConfigValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ConfigValidationError{}
+
+// Validate checks the field values on Route with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *Route) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if m.GetMatch() == nil {
+		return RouteValidationError{
+			field:  "Match",
+			reason: "value is required",
+		}
+	}
+
+	if v, ok := interface{}(m.GetMatch()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return RouteValidationError{
+				field:  "Match",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	// no validation rules for ResponseHeaders
+
+	// no validation rules for ResponseBody
+
+	return nil
+}
+
+// RouteValidationError is the validation error returned by Route.Validate if
+// the designated constraints aren't met.
+type RouteValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RouteValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RouteValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RouteValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RouteValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RouteValidationError) ErrorName() string { return "RouteValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RouteValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRoute.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RouteValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RouteValidationError{}
+
+// Validate checks the field values on RouteMatch with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *RouteMatch) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	switch m.PathSpecifier.(type) {
+
+	case *RouteMatch_Prefix:
+		// no validation rules for Prefix
+
+	case *RouteMatch_Path:
+		// no validation rules for Path
+
+	default:
+		return RouteMatchValidationError{
+			field:  "PathSpecifier",
+			reason: "value is required",
+		}
+
+	}
+
+	return nil
+}
+
+// RouteMatchValidationError is the validation error returned by
+// RouteMatch.Validate if the designated constraints aren't met.
+type RouteMatchValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e RouteMatchValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e RouteMatchValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e RouteMatchValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e RouteMatchValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e RouteMatchValidationError) ErrorName() string { return "RouteMatchValidationError" }
+
+// Error satisfies the builtin error interface
+func (e RouteMatchValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sRouteMatch.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = RouteMatchValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = RouteMatchValidationError{}
+
 // Validate checks the field values on Logger with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
 func (m *Logger) Validate() error {
@@ -357,87 +621,3 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListenerValidationError{}
-
-// Validate checks the field values on Config with the rules defined in the
-// proto definition for this message. If any rules are violated, an error is returned.
-func (m *Config) Validate() error {
-	if m == nil {
-		return nil
-	}
-
-	if v, ok := interface{}(m.GetListener()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ConfigValidationError{
-				field:  "Listener",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if v, ok := interface{}(m.GetLogger()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ConfigValidationError{
-				field:  "Logger",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	return nil
-}
-
-// ConfigValidationError is the validation error returned by Config.Validate if
-// the designated constraints aren't met.
-type ConfigValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e ConfigValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e ConfigValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e ConfigValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e ConfigValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e ConfigValidationError) ErrorName() string { return "ConfigValidationError" }
-
-// Error satisfies the builtin error interface
-func (e ConfigValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sConfig.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = ConfigValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = ConfigValidationError{}

@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/tiennv147/http-echo/config"
+	"github.com/tiennv147/http-echo/mux"
 	pb "github.com/tiennv147/http-echo/pb"
 )
 
@@ -42,14 +43,7 @@ func RunWithConfig(cfg *pb.Config) {
 
 	// Address from config
 	address := fmt.Sprintf("%s:%d", cfg.Listener.GetTcp().Address, cfg.Listener.GetTcp().Port)
-
-	// Flag gets printed as a page
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", httpEcho("hello man!"))
-
-	// Health endpoint
-	mux.HandleFunc("/health", httpHealth())
-
+	mux := mux.New(cfg.GetRoutes())
 	server := &http.Server{
 		Addr:    address,
 		Handler: mux,
@@ -80,16 +74,4 @@ func RunWithConfig(cfg *pb.Config) {
 
 	// If we got this far, it was an interrupt, so don't exit cleanly
 	os.Exit(2)
-}
-
-func httpEcho(v string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, v)
-	}
-}
-
-func httpHealth() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, `{"status":"ok"}`)
-	}
 }

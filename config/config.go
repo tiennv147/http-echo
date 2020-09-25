@@ -13,6 +13,8 @@ import (
 
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/any"
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 
@@ -107,7 +109,8 @@ func executeTemplate(contents []byte) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func newLogger(msg *pb.Logger) (*zap.Logger, error) {
+// NewLogger ...
+func NewLogger(msg *pb.Logger) (*zap.Logger, error) {
 	var c zap.Config
 	var opts []zap.Option
 	if msg.GetPretty() {
@@ -120,7 +123,7 @@ func newLogger(msg *pb.Logger) (*zap.Logger, error) {
 	level := zap.NewAtomicLevel()
 
 	levelName := "INFO"
-	if msg.Level != gatewayv1.Logger_UNSPECIFIED {
+	if msg.Level != pb.Logger_UNSPECIFIED {
 		levelName = msg.Level.String()
 	}
 
@@ -132,7 +135,8 @@ func newLogger(msg *pb.Logger) (*zap.Logger, error) {
 	return c.Build(opts...)
 }
 
-func newTmpLogger() *zap.Logger {
+// NewTmpLogger ...
+func NewTmpLogger() *zap.Logger {
 	c := zap.NewProductionConfig()
 	c.DisableStacktrace = true
 	l, err := c.Build()

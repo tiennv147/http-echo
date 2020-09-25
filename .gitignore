@@ -12,6 +12,7 @@
 _obj
 _test
 vendor
+__debug_bin
 
 # Architecture specific extensions/prefixes
 *.[568vq]

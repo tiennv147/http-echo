@@ -1,0 +1,23 @@
+listener:
+  tcp:
+    address: 0.0.0.0
+    port: 8080
+    secure: false
+
+logger:
+  pretty: true
+  level: DEBUG
+
+routes:
+  - match:
+      path: /v1/oauth2/verify
+    response_headers:
+      "tony": "stark"
+      "spider": "man"
+    response_body: '{"ok": "fine"}'
+  - match:
+      path: v1/oauth2/oauth_user
+    response_headers:
+      "captain": "american"
+      "hawk": "eye"
+    response_body: '{"no": "bad"}'

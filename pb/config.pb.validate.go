@@ -227,6 +227,21 @@ func (m *RouteMatch) Validate() error {
 		return nil
 	}
 
+	for idx, item := range m.GetHeaders() {
+		_, _ = idx, item
+
+		if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return RouteMatchValidationError{
+					field:  fmt.Sprintf("Headers[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	switch m.PathSpecifier.(type) {
 
 	case *RouteMatch_Prefix:
@@ -299,6 +314,94 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RouteMatchValidationError{}
+
+// Validate checks the field values on HeaderMatcher with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *HeaderMatcher) Validate() error {
+	if m == nil {
+		return nil
+	}
+
+	if len(m.GetName()) < 1 {
+		return HeaderMatcherValidationError{
+			field:  "Name",
+			reason: "value length must be at least 1 bytes",
+		}
+	}
+
+	if !_HeaderMatcher_Name_Pattern.MatchString(m.GetName()) {
+		return HeaderMatcherValidationError{
+			field:  "Name",
+			reason: "value does not match regex pattern \"^[^\\x00\\n\\r]*$\"",
+		}
+	}
+
+	switch m.HeaderMatchSpecifier.(type) {
+
+	case *HeaderMatcher_ExactMatch:
+		// no validation rules for ExactMatch
+
+	}
+
+	return nil
+}
+
+// HeaderMatcherValidationError is the validation error returned by
+// HeaderMatcher.Validate if the designated constraints aren't met.
+type HeaderMatcherValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e HeaderMatcherValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e HeaderMatcherValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e HeaderMatcherValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e HeaderMatcherValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e HeaderMatcherValidationError) ErrorName() string { return "HeaderMatcherValidationError" }
+
+// Error satisfies the builtin error interface
+func (e HeaderMatcherValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sHeaderMatcher.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = HeaderMatcherValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = HeaderMatcherValidationError{}
+
+var _HeaderMatcher_Name_Pattern = regexp.MustCompile("^[^\x00\n\r]*$")
 
 // Validate checks the field values on Logger with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.

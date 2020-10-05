@@ -3,6 +3,7 @@ package mux
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	pb "github.com/tiennv147/http-echo/pb"
 )
@@ -14,7 +15,7 @@ func New(routes []*pb.Route) *http.ServeMux {
 	for _, route := range routes {
 		mux.HandleFunc(
 			route.GetMatch().GetPath(),
-			httpEcho(route.GetResponseHeaders(), route.GetResponseBody()),
+			httpEcho(route),
 		)
 	}
 
@@ -24,8 +25,14 @@ func New(routes []*pb.Route) *http.ServeMux {
 	return mux
 }
 
-func httpEcho(headers map[string]string, body string) http.HandlerFunc {
+func httpEcho(route *pb.Route) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		headers := route.GetResponseHeaders()
+		body := route.GetResponseBody()
+		delay := route.GetDelay()
+		if delay != nil && delay.GetSeconds() > 0 {
+			time.Sleep(delay.AsDuration())
+		}
 		for k, v := range headers {
 			w.Header().Add(k, v)
 		}

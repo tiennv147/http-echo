@@ -43,7 +43,7 @@ func RunWithConfig(cfg *pb.Config) {
 
 	// Address from config
 	address := fmt.Sprintf("%s:%d", cfg.Listener.GetTcp().Address, cfg.Listener.GetTcp().Port)
-	mux := mux.New(cfg.GetRoutes())
+	mux := mux.New(cfg.GetRoutes(), logger)
 	server := &http.Server{
 		Addr:    address,
 		Handler: mux,

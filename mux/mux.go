@@ -5,17 +5,19 @@ import (
 	"net/http"
 	"time"
 
+	"go.uber.org/zap"
+
 	pb "github.com/tiennv147/http-echo/pb"
 )
 
 // New ...
-func New(routes []*pb.Route) *http.ServeMux {
+func New(routes []*pb.Route, logger *zap.Logger) *http.ServeMux {
 	// Flag gets printed as a page
 	mux := http.NewServeMux()
 	for _, route := range routes {
 		mux.HandleFunc(
 			route.GetMatch().GetPath(),
-			httpEcho(route),
+			httpEcho(route, logger),
 		)
 	}
 
@@ -25,8 +27,12 @@ func New(routes []*pb.Route) *http.ServeMux {
 	return mux
 }
 
-func httpEcho(route *pb.Route) http.HandlerFunc {
+func httpEcho(route *pb.Route, logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		logger.Debug("httpEcho receive request", zap.String("path", r.URL.Path))
+		defer func() {
+			logger.Debug("httpEcho response", zap.String("path", r.URL.Path))
+		}()
 		headers := route.GetResponseHeaders()
 		body := route.GetResponseBody()
 		delay := route.GetDelay()

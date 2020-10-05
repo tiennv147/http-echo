@@ -13,6 +13,7 @@ routes:
   - match:
       path: /v1/oauth2/verify
     response_body: '{"partnerID":"976f8898-084b-4561-88e6-12a177d45633","clientID":"1106a01ca420450d8d05b23692605696","tokenID":"7Qg6LRGqR0GB36dnY9x5ug"}'
+    delay: 30s
   # This endpoint is for gateway call every other call to upsteam
   - match:
       path: /

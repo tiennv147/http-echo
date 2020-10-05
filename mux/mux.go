@@ -29,9 +29,9 @@ func New(routes []*pb.Route, logger *zap.Logger) *http.ServeMux {
 
 func httpEcho(route *pb.Route, logger *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		logger.Debug("httpEcho start", zap.String("path", r.URL.Path))
+		logger.Debug("httpEcho receive request", zap.String("path", r.URL.Path))
 		defer func() {
-			logger.Debug("httpEcho end", zap.String("path", r.URL.Path))
+			logger.Debug("httpEcho response", zap.String("path", r.URL.Path))
 		}()
 		headers := route.GetResponseHeaders()
 		body := route.GetResponseBody()

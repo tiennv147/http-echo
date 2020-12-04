@@ -1,0 +1,10 @@
+# git
+.git/
+**/.gitattributes
+**/.gitignore
+
+# backend
+build/
+
+# docs
+.vscode

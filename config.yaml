@@ -20,6 +20,7 @@ routes:
     response_headers:
       captain: american
       hawk: eye
+      user: ${USER}
     response_body: '{"sample": "response"}'
   - match:
       path: /delay

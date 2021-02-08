@@ -22,4 +22,5 @@ routes:
       captain: american
       hawk: eye
     response_body: '{"delay": "response"}'
-    delay: 30s
+    response_code: 201
+    delay: 10s

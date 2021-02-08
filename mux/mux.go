@@ -42,6 +42,9 @@ func httpEcho(route *pb.Route, logger *zap.Logger) http.HandlerFunc {
 		for k, v := range headers {
 			w.Header().Add(k, v)
 		}
+		if route.ResponseCode > 0 {
+			w.WriteHeader(int(route.ResponseCode))
+		}
 		fmt.Fprintln(w, body)
 	}
 }

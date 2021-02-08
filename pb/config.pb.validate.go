@@ -159,6 +159,13 @@ func (m *Route) Validate() error {
 		}
 	}
 
+	if m.GetResponseCode() <= 0 {
+		return RouteValidationError{
+			field:  "ResponseCode",
+			reason: "value must be greater than 0",
+		}
+	}
+
 	// no validation rules for ResponseHeaders
 
 	// no validation rules for ResponseBody

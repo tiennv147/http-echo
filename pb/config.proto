@@ -37,7 +37,26 @@ message RouteMatch {
         // exactly match the *:path* header once the query string is removed.
         string path = 2;
     }
-    // will support header matcher later
+    // Specifies a set of headers that the route should match on. The router will
+    // check the request’s headers against all the specified headers in the route
+    // config. A match will happen if all the headers in the route are present in
+    // the request with the same values (or based on presence if the value field
+    // is not in the config).
+    repeated HeaderMatcher headers = 6;
+}
+
+message HeaderMatcher {
+    reserved 2, 3;
+  
+    // Specifies the name of the header in the request.
+    string name = 1
+        [(validate.rules).string = {min_bytes: 1 well_known_regex: HTTP_HEADER_NAME strict: false}];
+  
+    // Specifies how the header match will be performed to route the request.
+    oneof header_match_specifier {
+      // If specified, header match will be performed based on the value of the header.
+      string exact_match = 4;
+    }
 }
 
 

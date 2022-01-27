@@ -1,7 +1,7 @@
 listener:
   tcp:
     address: 0.0.0.0
-    port: 8080
+    port: 8888
     secure: false
 
 logger:
@@ -10,14 +10,17 @@ logger:
 
 routes:
   - match:
-      path: /v1/oauth2/verify
-    response_headers:
-      tony: stark
-      spider: man
-    response_body: '{"ok": "fine"}'
-  - match:
-      path: v1/oauth2/oauth_user
+      path: /
     response_headers:
       captain: american
       hawk: eye
-    response_body: '{"no": "bad"}'
+      user: ${USER}
+    response_body: '{"sample": "response"}'
+  - match:
+      path: /delay
+    response_headers:
+      captain: american
+      hawk: eye
+    response_body: '{"delay": "response"}'
+    response_code: 201
+    delay: 10s

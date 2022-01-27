@@ -159,9 +159,37 @@ func (m *Route) Validate() error {
 		}
 	}
 
+	if m.GetResponseCode() <= 0 {
+		return RouteValidationError{
+			field:  "ResponseCode",
+			reason: "value must be greater than 0",
+		}
+	}
+
 	// no validation rules for ResponseHeaders
 
 	// no validation rules for ResponseBody
+
+	if d := m.GetDelay(); d != nil {
+		dur, err := ptypes.Duration(d)
+		if err != nil {
+			return RouteValidationError{
+				field:  "Delay",
+				reason: "value is not a valid duration",
+				cause:  err,
+			}
+		}
+
+		gte := time.Duration(0*time.Second + 0*time.Nanosecond)
+
+		if dur < gte {
+			return RouteValidationError{
+				field:  "Delay",
+				reason: "value must be greater than or equal to 0s",
+			}
+		}
+
+	}
 
 	return nil
 }

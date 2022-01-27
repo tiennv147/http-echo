@@ -5,6 +5,7 @@ package pb;
 option go_package = "github.com/tiennv147/http-echo/pb;pb";
 
 import "validate/validate.proto";
+import "google/protobuf/duration.proto";
 
 message Config {
   Listener listener = 1;
@@ -18,8 +19,10 @@ message Config {
 message Route {
   // Route matching parameters.
   RouteMatch match = 1 [(validate.rules).message = {required: true}];
-  map<string, string> response_headers = 2;
-  string response_body = 3;
+  int32 response_code = 2 [(validate.rules).int32.gt = 0];
+  map<string, string> response_headers = 3;
+  string response_body = 4;
+  google.protobuf.Duration delay = 5 [ (validate.rules).duration = {gte : {seconds : 0}} ];
 }
 
 message RouteMatch {
